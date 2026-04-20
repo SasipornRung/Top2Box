@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Dashboard – Skin Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#f0f4f8; --surface:#fff; --surface2:#f8fafc; --border:#e2e8f0;
+  --accent:#2d6a4f; --accent2:#52b788; --text:#1a202c; --text2:#4a5568; --text3:#718096;
+  --c1:#ff8fa3; --c2:#ffb3c1; --c3:#ffd166; --c4:#52b788; --c5:#2d6a4f;
+  --shadow:0 4px 24px rgba(0,0,0,0.08); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+header{
+  background:linear-gradient(135deg,var(--c5) 0%,#40916c 60%,var(--c4) 100%);
+  color:white;padding:24px 40px;display:flex;align-items:center;gap:16px;
+  box-shadow:0 4px 20px rgba(45,106,79,.3);
+}
+header .icon{width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:12px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+header h1{font-family:'Prompt',sans-serif;font-size:1.4rem;font-weight:700}
+header p{font-size:.82rem;opacity:.8;margin-top:2px}
+
+.container{max-width:1400px;margin:0 auto;padding:28px 20px}
+
+.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.tab-btn{padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Sarabun',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{border-color:var(--accent2);color:var(--accent)}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+
+.layout{display:grid;grid-template-columns:400px 1fr;gap:22px;align-items:start}
+@media(max-width:960px){.layout{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header h2{font-family:'Prompt',sans-serif;font-size:.92rem;font-weight:600}
+.card-header .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);flex-shrink:0}
+.card-body{padding:18px 20px}
+
+.mode-switch{display:flex;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)}
+.mode-btn{flex:1;padding:8px 4px;background:var(--surface2);border:none;font-family:'Sarabun',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
+.mode-btn:not(:last-child){border-right:1.5px solid var(--border)}
+.mode-btn.active{background:var(--accent);color:white}
+
+/* CSV */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2);margin-bottom:12px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent2);background:#f0fff4}
+.upload-zone .upload-icon{font-size:2rem;margin-bottom:7px}
+.upload-zone p{font-size:.82rem;color:var(--text2);font-weight:500}
+.upload-zone small{font-size:.72rem;color:var(--text3);display:block;margin-top:3px}
+#csvFileInput{display:none}
+
+.format-guide{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:.75rem;color:#92400e;line-height:1.6}
+.format-guide strong{display:block;margin-bottom:5px;font-size:.78rem}
+.format-guide code{background:#fef3c7;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.71rem}
+
+.preview-wrap{margin-bottom:12px;display:none}
+.preview-title{font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.preview-title .badge{background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-size:.7rem}
+.preview-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border);max-height:160px}
+.preview-scroll table{width:100%;border-collapse:collapse;font-size:.71rem}
+.preview-scroll th{background:#f1f5f9;padding:5px 8px;font-weight:700;color:var(--text2);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0}
+.preview-scroll td{padding:4px 8px;border-bottom:1px solid #f1f5f9;white-space:nowrap;color:var(--text)}
+.preview-scroll tr:last-child td{border-bottom:none}
+.preview-scroll tr:hover td{background:#f8fafc}
+
+.mapper-wrap{margin-bottom:12px;display:none;background:var(--surface2);border-radius:10px;padding:12px 14px;border:1px solid var(--border)}
+.mapper-title{font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:9px}
+.mapper-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.77rem}
+.mapper-row label{min-width:115px;color:var(--text);font-weight:500}
+.mapper-row select{flex:1;border:1.5px solid var(--border);border-radius:7px;padding:5px 8px;font-family:'Sarabun',sans-serif;font-size:.75rem;background:white;color:var(--text);outline:none;cursor:pointer}
+.mapper-row select:focus{border-color:var(--accent2)}
+
+.dl-link{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;color:var(--accent);text-decoration:none;font-weight:600;margin-bottom:12px;background:#f0fff4;padding:5px 10px;border-radius:8px;border:1px solid #b7e4c7;transition:all .2s;cursor:pointer}
+.dl-link:hover{background:#d8f3dc}
+
+/* Manual */
+.week-section{margin-bottom:15px}
+.week-label{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.82rem;margin-bottom:8px}
+.week-badge{background:var(--accent);color:white;font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.score-item input{width:100%;text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:5px 3px;font-size:.8rem;font-family:'Sarabun',sans-serif;background:var(--surface2);color:var(--text);transition:border-color .2s;outline:none}
+.score-item input:focus{border-color:var(--accent2);background:white}
+.score-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px}
+.score-labels span{text-align:center;font-size:.66rem;font-weight:700;padding:2px 3px;border-radius:5px}
+.lbl1{background:#ffe0e6;color:#c9184a}.lbl2{background:#ffb3c1;color:#c9184a}
+.lbl3{background:#fff0a0;color:#b7791f}.lbl4{background:#d8f3dc;color:#2d6a4f}.lbl5{background:#95d5b2;color:#1b4332}
+.divider{border:none;border-top:1px dashed var(--border);margin:11px 0}
+.info-row{display:flex;gap:6px;align-items:flex-start;background:#f0fff4;border:1px solid #b7e4c7;border-radius:8px;padding:7px 11px;margin-bottom:12px;font-size:.76rem;color:var(--accent)}
+
+.btn-row{display:flex;gap:8px;margin-top:8px}
+.btn{flex:1;padding:10px;border-radius:9px;border:none;font-family:'Sarabun',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:#1b4332;transform:translateY(-1px)}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent)}
+.btn-csv{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white}
+.btn-csv:hover{opacity:.88;transform:translateY(-1px)}
+.btn-csv:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:12px;font-size:.73rem;font-weight:600;margin-bottom:10px}
+.status-ok{background:#d1fae5;color:#065f46}
+.status-err{background:#fee2e2;color:#b91c1c}
+.status-warn{background:#fef3c7;color:#92400e}
+
+/* Chart */
+.chart-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 26px}
+.chart-title{font-family:'Prompt',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:7px}
+.top2-badge{display:flex;justify-content:center;margin-bottom:14px}
+.top2-badge span{background:linear-gradient(135deg,var(--accent2),var(--accent));color:white;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700}
+.chart-legend{display:flex;justify-content:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--text2);font-weight:500}
+.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.chart-wrap{position:relative;height:340px}
+.top2-line{display:flex;justify-content:space-around;padding:12px 0 0;border-top:1px solid var(--border);margin-top:14px}
+.top2-item{text-align:center}
+.top2-item .wk{font-size:.7rem;color:var(--text3);margin-bottom:2px}
+.top2-item .pct{font-family:'Prompt',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent)}
+.top2-item .pct.high{color:#2d6a4f}.top2-item .pct.low{color:#c9184a}
+.no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text3);gap:10px}
+.no-data span{font-size:2.5rem}.no-data p{font-size:.86rem}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:white;padding:11px 18px;border-radius:11px;font-size:.82rem;font-weight:600;box-shadow:0 8px 24px rgba(45,106,79,.4);transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+
+.sub-mode-switch{display:flex;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border)}
+.sub-mode-btn{flex:1;padding:6px 4px;background:var(--surface2);border:none;font-family:'Sarabun',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
+.sub-mode-btn:not(:last-child){border-right:1.5px solid var(--border)}
+.sub-mode-btn.active{background:#0ea5e9;color:white}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon">📊</div>
+  <div>
+    <h1>Survey Dashboard – Skin Care</h1>
+    <p>กรอกคะแนนดิบหรือ Upload CSV → คำนวณ %Top 2 Box อัตโนมัติ</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs" id="tabBar"></div>
+  <div class="layout">
+
+    <!-- LEFT: Input Panel -->
+    <div class="card">
+      <div class="card-header">
+        <div class="dot"></div>
+        <h2 id="inputTitle">ข้อมูลคะแนน</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Main Mode Switch -->
+        <div class="mode-switch">
+          <button class="mode-btn active" id="modeManualBtn" onclick="switchMode('manual')">✏️ กรอกมือ</button>
+          <button class="mode-btn" id="modeCsvBtn" onclick="switchMode('csv')">📂 Import CSV</button>
+        </div>
+
+        <!-- ── MANUAL PANEL ── -->
+        <div id="manualPanel">
+          <div class="info-row">💡 กรอกจำนวนผู้ตอบในแต่ละระดับคะแนน (1–5) สำหรับแต่ละสัปดาห์</div>
+          <div id="inputArea"></div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="resetCurrent()">รีเซ็ต</button>
+            <button class="btn btn-primary" onclick="renderChart()">แสดงกราฟ ▶</button>
+          </div>
+        </div>
+
+        <!-- ── CSV PANEL ── -->
+        <div id="csvPanel" style="display:none">
+
+          <!-- Sub-mode: raw vs agg -->
+          <div style="font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:7px">รูปแบบ CSV:</div>
+          <div class="sub-mode-switch">
+            <button class="sub-mode-btn active" id="fmtRawBtn" onclick="switchFmt('raw')">📋 รายคน (ข้อมูลดิบ)</button>
+            <button class="sub-mode-btn" id="fmtAggBtn" onclick="switchFmt('agg')">🔢 นับรวมแล้ว</button>
+          </div>
+
+          <!-- Format guides -->
+          <div id="guideRaw" class="format-guide">
+            <strong>📋 ข้อมูลดิบรายคน — 1 แถว = 1 คนตอบ</strong>
+            ต้องมีคอลัมน์: <code>week</code>, <code>category</code>, <code>score</code><br>
+            • week: <code>0</code> ถึง <code>4</code><br>
+            • category: <code>overall</code> / <code>moisture</code> / <code>bright</code> / <code>smooth</code> / <code>wrinkle</code> / <code>dark</code><br>
+            • score: <code>1</code> ถึง <code>5</code>
+          </div>
+          <div id="guideAgg" class="format-guide" style="display:none">
+            <strong>🔢 นับรวมแล้ว — 1 แถว = 1 สัปดาห์ × 1 หมวด</strong>
+            ต้องมีคอลัมน์: <code>week</code>, <code>category</code>, <code>score1</code>, <code>score2</code>, <code>score3</code>, <code>score4</code>, <code>score5</code><br>
+            ตัวอย่าง: <code>0,overall,2,0,8,24,7</code>
+          </div>
+
+          <!-- Download template links -->
+          <a class="dl-link" id="dlRawLink" onclick="downloadTemplate('raw')">⬇️ Download ตัวอย่าง CSV (รายคน)</a>
+          <a class="dl-link" id="dlAggLink" onclick="downloadTemplate('agg')" style="display:none">⬇️ Download ตัวอย่าง CSV (นับรวม)</a>
+
+          <!-- Drop zone -->
+          <div class="upload-zone" id="uploadZone"
+            onclick="document.getElementById('csvFileInput').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleDrop(event)">
+            <div class="upload-icon">📂</div>
+            <p>คลิกเลือกไฟล์ หรือลากวางที่นี่</p>
+            <small>รองรับ .csv ทุก encoding (UTF-8 / TIS-620)</small>
+          </div>
+          <input type="file" id="csvFileInput" accept=".csv,.txt" onchange="handleFile(this.files[0])">
+
+          <div id="csvStatus"></div>
+
+          <!-- Column mapper (raw only) -->
+          <div class="mapper-wrap" id="mapperWrap">
+            <div class="mapper-title">🗂 จับคู่คอลัมน์ (ปรับได้ถ้าชื่อไม่ตรง)</div>
+            <div class="mapper-row"><label>คอลัมน์ "Week"</label><select id="mapWeek"></select></div>
+            <div class="mapper-row"><label>คอลัมน์ "Category"</label><select id="mapCat"></select></div>
+            <div class="mapper-row"><label>คอลัมน์ "Score"</label><select id="mapScore"></select></div>
+          </div>
+
+          <!-- Preview table -->
+          <div class="preview-wrap" id="previewWrap">
+            <div class="preview-title">ตัวอย่างข้อมูล <span class="badge" id="previewBadge"></span></div>
+            <div class="preview-scroll"><table id="previewTable"></table></div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="clearCsv()">ล้าง</button>
+            <button class="btn btn-csv" id="btnImport" onclick="importCsv()" disabled>📥 Import & แสดงกราฟ</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Chart Panel -->
+    <div class="chart-card">
+      <div class="no-data" id="noData"><span>📈</span><p>กรอกข้อมูลและกด "แสดงกราฟ"</p></div>
+      <div id="chartArea" style="display:none">
+        <div class="chart-title" id="chartTitle"></div>
+        <div class="top2-badge"><span>%Top 2 Box (คะแนน 4+5)</span></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--c1)"></div>1 (ต่ำสุด)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--c2)"></div>2</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--c3)"></div>3</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--c4)"></div>4</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--c5)"></div>5 (สูงสุด)</div>
+        </div>
+        <div class="chart-wrap"><canvas id="myChart"></canvas></div>
+        <div class="top2-line" id="top2Line"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────
+const CATEGORIES = [
+  {id:'overall', label:'คะแนนความพึงพอใจโดยรวม'},
+  {id:'moisture',label:'คะแนนความชุ่มชื้น'},
+  {id:'bright',  label:'คะแนนด้านความกระจ่างใส'},
+  {id:'smooth',  label:'คะแนนด้านเรียบเนียน'},
+  {id:'wrinkle', label:'ด้านริ้วรอย'},
+  {id:'dark',    label:'ด้านจุดด่างดำ/ฝ้า/กระ'},
+];
+const CAT_IDS    = CATEGORIES.map(c=>c.id);
+const CAT_LABELS = CATEGORIES.map(c=>c.label);
+const WEEKS      = ['Week 0','Week 1','Week 2','Week 3','Week 4'];
+
+// State
+let data        = emptyData();
+let currentCat  = 0;
+let myChart     = null;
+let csvFmt      = 'raw';
+let parsedRows  = null;
+let csvHeaders  = [];
+
+function emptyData(){
+  return Array.from({length:6},()=>Array.from({length:5},()=>[0,0,0,0,0]));
+}
+
+// ── Tabs ──────────────────────────────────────────────────
+function buildTabs(){
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML='';
+  CATEGORIES.forEach((cat,i)=>{
+    const b=document.createElement('button');
+    b.className='tab-btn'+(i===currentCat?' active':'');
+    b.textContent=(i+1)+'. '+cat.label;
+    b.onclick=()=>{ currentCat=i; buildTabs(); buildInputs(); };
+    bar.appendChild(b);
+  });
+}
+
+// ── Mode switches ──────────────────────────────────────────
+function switchMode(m){
+  document.getElementById('manualPanel').style.display=m==='manual'?'block':'none';
+  document.getElementById('csvPanel').style.display   =m==='csv'?'block':'none';
+  document.getElementById('modeManualBtn').classList.toggle('active',m==='manual');
+  document.getElementById('modeCsvBtn').classList.toggle('active',m==='csv');
+}
+
+function switchFmt(f){
+  csvFmt=f;
+  document.getElementById('fmtRawBtn').classList.toggle('active',f==='raw');
+  document.getElementById('fmtAggBtn').classList.toggle('active',f==='agg');
+  document.getElementById('guideRaw').style.display=f==='raw'?'block':'none';
+  document.getElementById('guideAgg').style.display=f==='agg'?'block':'none';
+  document.getElementById('dlRawLink').style.display=f==='raw'?'inline-flex':'none';
+  document.getElementById('dlAggLink').style.display=f==='agg'?'inline-flex':'none';
+  clearCsv();
+}
+
+// ── Manual input ───────────────────────────────────────────
+function buildInputs(){
+  document.getElementById('inputTitle').textContent='ข้อมูล: '+CAT_LABELS[currentCat];
+  const area=document.getElementById('inputArea');
+  area.innerHTML='';
+  WEEKS.forEach((wk,wi)=>{
+    const sec=document.createElement('div');
+    sec.className='week-section';
+    sec.innerHTML=`
+      <div class="week-label"><span class="week-badge">${wk}</span> จำนวนผู้ตอบแต่ละระดับ</div>
+      <div class="score-labels">
+        <span class="lbl1">1⭐</span><span class="lbl2">2⭐</span>
+        <span class="lbl3">3⭐</span><span class="lbl4">4⭐</span><span class="lbl5">5⭐</span>
+      </div>
+      <div class="score-grid">
+        ${[0,1,2,3,4].map(si=>`
+          <div class="score-item">
+            <input type="number" min="0" id="inp_${wi}_${si}"
+              value="${data[currentCat][wi][si]}"
+              onchange="saveVal(${wi},${si},this.value)" placeholder="0">
+          </div>`).join('')}
+      </div>${wi<4?'<hr class="divider">':''}`;
+    area.appendChild(sec);
+  });
+}
+
+function saveVal(wi,si,v){ data[currentCat][wi][si]=parseInt(v)||0; }
+
+function syncInputsToData(){
+  WEEKS.forEach((_,wi)=>{
+    [0,1,2,3,4].forEach(si=>{
+      const el=document.getElementById(`inp_${wi}_${si}`);
+      if(el) data[currentCat][wi][si]=parseInt(el.value)||0;
+    });
+  });
+}
+
+function resetCurrent(){
+  data[currentCat]=Array.from({length:5},()=>[0,0,0,0,0]);
+  buildInputs();
+}
+
+// ── CSV Upload ─────────────────────────────────────────────
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f) handleFile(f);
+}
+
+function handleFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>processCSVText(e.target.result,file.name);
+  // try UTF-8 first; TIS-620 fallback handled by letting browser decode
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseCSV(text){
+  // Handle \r\n and \r
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
+  if(lines.length<2) throw new Error('ไฟล์มีข้อมูลน้อยเกินไป');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
+  const rows=lines.slice(1).map(l=>{
+    const vals=l.split(',').map(v=>v.trim().replace(/^"|"$/g,''));
+    const obj={};
+    headers.forEach((h,i)=>{ obj[h]=vals[i]||''; });
+    return obj;
+  }).filter(r=>headers.some(h=>r[h]));
+  return {headers,rows};
+}
+
+function processCSVText(text,filename){
+  try{
+    const {headers,rows}=parseCSV(text);
+    if(!rows.length) throw new Error('ไม่พบข้อมูลในไฟล์');
+    csvHeaders=headers;
+    parsedRows=rows;
+    setStatus(`✅ โหลดสำเร็จ: ${filename} — ${rows.length} แถว`,'ok');
+    showPreview(headers,rows.slice(0,6),rows.length);
+    if(csvFmt==='raw') setupMapper(headers);
+    else document.getElementById('mapperWrap').style.display='none';
+    document.getElementById('btnImport').disabled=false;
+  } catch(err){
+    setStatus('❌ '+err.message,'err');
+    document.getElementById('btnImport').disabled=true;
+  }
+}
+
+function setStatus(msg,type){
+  const el=document.getElementById('csvStatus');
+  el.innerHTML=`<div class="status-pill status-${type}">${msg}</div>`;
+}
+
+function showPreview(headers,rows,total){
+  const pw=document.getElementById('previewWrap');
+  pw.style.display='block';
+  document.getElementById('previewBadge').textContent=total+' แถวทั้งหมด';
+  const t=document.getElementById('previewTable');
+  t.innerHTML=
+    `<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`+
+    rows.map(r=>`<tr>${headers.map(h=>`<td>${r[h]??''}</td>`).join('')}</tr>`).join('');
+}
+
+function setupMapper(headers){
+  const mw=document.getElementById('mapperWrap');
+  mw.style.display='block';
+  const guesses=[
+    ['week','wk','สัปดาห์','weeks'],
+    ['category','cat','หมวด','ประเภท','group'],
+    ['score','คะแนน','rating','value','ans','answer','response'],
+  ];
+  ['mapWeek','mapCat','mapScore'].forEach((id,i)=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML=headers.map(h=>`<option value="${h}">${h}</option>`).join('');
+    const match=headers.find(h=>guesses[i].some(g=>h.includes(g)));
+    if(match) sel.value=match;
+  });
+}
+
+function clearCsv(){
+  parsedRows=null; csvHeaders=[];
+  document.getElementById('csvStatus').innerHTML='';
+  document.getElementById('previewWrap').style.display='none';
+  document.getElementById('mapperWrap').style.display='none';
+  document.getElementById('csvFileInput').value='';
+  document.getElementById('btnImport').disabled=true;
+}
+
+// ── Normalize category value → index ──────────────────────
+function normCatId(val){
+  if(!val) return -1;
+  const v=val.toLowerCase().trim();
+  // exact id match
+  const ei=CAT_IDS.indexOf(v);
+  if(ei>=0) return ei;
+  // full label match
+  const li=CAT_LABELS.findIndex(l=>l===val.trim());
+  if(li>=0) return li;
+  // keyword map
+  const kw=[
+    ['overall','พึงพอใจ','โดยรวม','overall'],
+    ['moisture','ชุ่มชื้น','moisture','moist'],
+    ['bright','กระจ่าง','ใส','bright','clear'],
+    ['smooth','เรียบ','เนียน','smooth'],
+    ['wrinkle','ริ้ว','รอย','wrinkle'],
+    ['dark','จุด','ด่าง','ดำ','ฝ้า','กระ','dark','spot'],
+  ];
+  for(let i=0;i<kw.length;i++){
+    if(kw[i].some(k=>v.includes(k))) return i;
+  }
+  return -1;
+}
+
+// ── Import CSV → data ──────────────────────────────────────
+function importCsv(){
+  if(!parsedRows) return;
+  try{
+    if(csvFmt==='raw') importRaw();
+    else importAgg();
+  } catch(err){
+    setStatus('❌ Import ล้มเหลว: '+err.message,'err');
+  }
+}
+
+function importRaw(){
+  const colW=document.getElementById('mapWeek').value;
+  const colC=document.getElementById('mapCat').value;
+  const colS=document.getElementById('mapScore').value;
+
+  data=emptyData();
+  let ok=0, skip=0, unknownCats=new Set();
+
+  parsedRows.forEach(row=>{
+    const wk =parseInt(row[colW]);
+    const sc =parseInt(row[colS]);
+    const cat=normCatId(row[colC]);
+    if(isNaN(wk)||wk<0||wk>4){ skip++; return; }
+    if(isNaN(sc)||sc<1||sc>5){ skip++; return; }
+    if(cat<0){ unknownCats.add(row[colC]); skip++; return; }
+    data[cat][wk][sc-1]++;
+    ok++;
+  });
+
+  if(ok===0) throw new Error('ไม่พบแถวที่แปลงได้ – ตรวจสอบการจับคู่คอลัมน์');
+  let msg=`✅ Import สำเร็จ ${ok} แถว`;
+  if(skip) msg+=` (ข้าม ${skip} แถว)`;
+  if(unknownCats.size) msg+=` — ไม่รู้จัก category: ${[...unknownCats].slice(0,3).join(', ')}`;
+  setStatus(msg, unknownCats.size?'warn':'ok');
+  buildInputs();
+  renderChart();
+  showToast('📥 Import สำเร็จ '+ok+' แถว');
+}
+
+function importAgg(){
+  const wCol=csvHeaders.find(h=>['week','wk','สัปดาห์'].some(k=>h.includes(k)))||csvHeaders[0];
+  const cCol=csvHeaders.find(h=>['category','cat','หมวด','ประเภท'].some(k=>h.includes(k)))||csvHeaders[1];
+
+  data=emptyData();
+  let ok=0, skip=0;
+
+  parsedRows.forEach(row=>{
+    const wk =parseInt(row[wCol]);
+    const cat=normCatId(row[cCol]);
+    if(isNaN(wk)||wk<0||wk>4){ skip++; return; }
+    if(cat<0){ skip++; return; }
+    [1,2,3,4,5].forEach(s=>{
+      const colCandidates=[`score${s}`,`s${s}`,`q${s}`,`คะแนน${s}`,`ระดับ${s}`];
+      const col=csvHeaders.find(h=>colCandidates.some(c=>h===c||h.replace(/\s/g,'')===c));
+      data[cat][wk][s-1]+= col?parseInt(row[col])||0:0;
+    });
+    ok++;
+  });
+
+  if(ok===0) throw new Error('ไม่พบแถวที่แปลงได้ – ตรวจสอบชื่อคอลัมน์');
+  setStatus(`✅ Import สำเร็จ ${ok} แถว${skip?' (ข้าม '+skip+')':''}`, 'ok');
+  buildInputs();
+  renderChart();
+  showToast('📥 Import สำเร็จ '+ok+' แถว');
+}
+
+// ── Download templates ─────────────────────────────────────
+function downloadTemplate(fmt){
+  let csv='';
+  const rand=(base,swing)=>Math.max(1,Math.min(5,base+Math.floor(Math.random()*swing)-(swing>>1)));
+
+  if(fmt==='raw'){
+    csv='week,category,score\n';
+    const bases=[[4,4,3,4,3,3],[4,3,4,3,4,3],[3,4,4,4,3,4],[5,4,4,4,4,4],[5,5,4,5,4,5]];
+    WEEKS.forEach((_,wi)=>{
+      CATEGORIES.forEach((cat,ci)=>{
+        const n=15+Math.floor(Math.random()*10);
+        for(let r=0;r<n;r++) csv+=`${wi},${cat.id},${rand(bases[wi][ci],3)}\n`;
+      });
+    });
+  } else {
+    csv='week,category,score1,score2,score3,score4,score5\n';
+    const tpl=[[2,1,8,20,9],[0,2,10,5,2],[0,0,14,16,5],[0,0,4,22,9],[0,0,0,18,12]];
+    WEEKS.forEach((_,wi)=>{
+      CATEGORIES.forEach(cat=>{
+        csv+=`${wi},${cat.id},${tpl[wi].join(',')}\n`;
+      });
+    });
+  }
+
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fmt==='raw'?'template_raw.csv':'template_aggregated.csv';
+  a.click();
+}
+
+// ── Render Chart ───────────────────────────────────────────
+function calcPercents(catIdx){
+  return WEEKS.map((_,wi)=>{
+    const counts=data[catIdx][wi];
+    const total=counts.reduce((a,b)=>a+b,0);
+    if(!total) return [0,0,0,0,0];
+    return counts.map(c=>parseFloat(((c/total)*100).toFixed(1)));
+  });
+}
+
+function renderChart(){
+  syncInputsToData();
+  const wp=calcPercents(currentCat);
+  const hasData=wp.some(w=>w.some(v=>v>0));
+  document.getElementById('noData').style.display   =hasData?'none':'flex';
+  document.getElementById('chartArea').style.display=hasData?'block':'none';
+  if(!hasData) return;
+
+  document.getElementById('chartTitle').textContent='%Top 2 Box '+CAT_LABELS[currentCat];
+
+  const colors=['#ff8fa3','#ffb3c1','#ffd166','#52b788','#2d6a4f'];
+  const datasets=[0,1,2,3,4].map(si=>({
+    label:String(si+1),
+    data:wp.map(w=>w[si]),
+    backgroundColor:colors[si],
+    borderWidth:0,
+    borderRadius:si===4?6:0,
+    borderSkipped:false,
+  }));
+
+  if(myChart) myChart.destroy();
+  const ctx=document.getElementById('myChart').getContext('2d');
+  myChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:WEEKS,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>` คะแนน ${c.dataset.label}: ${c.raw}%`}},
+      },
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{family:'Sarabun',size:12},color:'#4a5568'}},
+        y:{stacked:true,min:0,max:100,
+           ticks:{callback:v=>v+'%',font:{family:'Sarabun',size:11},color:'#718096'},
+           grid:{color:'#e2e8f0'}},
+      },
+    },
+    plugins:[{
+      id:'stackLabels',
+      afterDatasetsDraw(chart){
+        const ctx=chart.ctx;
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((bar,wi)=>{
+            const val=ds.data[wi];
+            if(val<4) return;
+            ctx.save();
+            ctx.fillStyle=di>=3?'white':'#1a202c';
+            ctx.font='600 11px Sarabun,sans-serif';
+            ctx.textAlign='center';ctx.textBaseline='middle';
+            ctx.fillText(val+'%',bar.x,bar.y+bar.height/2);
+            ctx.restore();
+          });
+        });
+      }
+    }]
+  });
+
+  // Top2 row
+  document.getElementById('top2Line').innerHTML=wp.map((w,i)=>{
+    const t2=parseFloat((w[3]+w[4]).toFixed(1));
+    const cls=t2>=80?'high':t2<=40?'low':'';
+    return `<div class="top2-item"><div class="wk">${WEEKS[i]}</div><div class="pct ${cls}">${t2}%</div></div>`;
+  }).join('');
+}
+
+function showToast(msg='✅ อัปเดตกราฟแล้ว'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── Init ───────────────────────────────────────────────────
+buildTabs();
+buildInputs();
+</script>
+</body>
+</html>
