@@ -6,131 +6,144 @@
 <title>Survey Dashboard – Skin Care</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg:#f0f4f8; --surface:#fff; --surface2:#f8fafc; --border:#e2e8f0;
   --accent:#2d6a4f; --accent2:#52b788; --text:#1a202c; --text2:#4a5568; --text3:#718096;
   --c1:#ff8fa3; --c2:#ffb3c1; --c3:#ffd166; --c4:#52b788; --c5:#2d6a4f;
-  --shadow:0 4px 24px rgba(0,0,0,0.08); --radius:16px;
+  --shadow:0 4px 24px rgba(0,0,0,.08); --radius:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
 header{
   background:linear-gradient(135deg,var(--c5) 0%,#40916c 60%,var(--c4) 100%);
-  color:white;padding:24px 40px;display:flex;align-items:center;gap:16px;
+  color:white;padding:22px 36px;display:flex;align-items:center;gap:16px;
   box-shadow:0 4px 20px rgba(45,106,79,.3);
 }
-header .icon{width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:12px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
-header h1{font-family:'Prompt',sans-serif;font-size:1.4rem;font-weight:700}
-header p{font-size:.82rem;opacity:.8;margin-top:2px}
+header .icon{width:46px;height:46px;background:rgba(255,255,255,.2);border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+header h1{font-family:'Prompt',sans-serif;font-size:1.35rem;font-weight:700}
+header p{font-size:.8rem;opacity:.8;margin-top:2px}
 
-.container{max-width:1400px;margin:0 auto;padding:28px 20px}
+.container{max-width:1440px;margin:0 auto;padding:26px 20px}
 
-.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
-.tab-btn{padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Sarabun',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tabs{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{padding:7px 13px;border-radius:20px;border:2px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Sarabun',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
 .tab-btn:hover{border-color:var(--accent2);color:var(--accent)}
 .tab-btn.active{background:var(--accent);border-color:var(--accent);color:white}
 
-.layout{display:grid;grid-template-columns:400px 1fr;gap:22px;align-items:start}
-@media(max-width:960px){.layout{grid-template-columns:1fr}}
+.layout{display:grid;grid-template-columns:410px 1fr;gap:20px;align-items:start}
+@media(max-width:980px){.layout{grid-template-columns:1fr}}
 
 .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.card-header{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.card-header h2{font-family:'Prompt',sans-serif;font-size:.92rem;font-weight:600}
-.card-header .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);flex-shrink:0}
-.card-body{padding:18px 20px}
+.card-header{padding:15px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header h2{font-family:'Prompt',sans-serif;font-size:.9rem;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent2);flex-shrink:0}
+.card-body{padding:16px 18px}
 
-.mode-switch{display:flex;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)}
-.mode-btn{flex:1;padding:8px 4px;background:var(--surface2);border:none;font-family:'Sarabun',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
+/* Mode tabs */
+.mode-switch{display:flex;margin-bottom:14px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)}
+.mode-btn{flex:1;padding:8px 4px;background:var(--surface2);border:none;font-family:'Sarabun',sans-serif;font-size:.77rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
 .mode-btn:not(:last-child){border-right:1.5px solid var(--border)}
 .mode-btn.active{background:var(--accent);color:white}
 
-/* CSV */
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2);margin-bottom:12px}
+/* Upload */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2);margin-bottom:12px}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--accent2);background:#f0fff4}
-.upload-zone .upload-icon{font-size:2rem;margin-bottom:7px}
-.upload-zone p{font-size:.82rem;color:var(--text2);font-weight:500}
-.upload-zone small{font-size:.72rem;color:var(--text3);display:block;margin-top:3px}
-#csvFileInput{display:none}
+.upload-zone .uz-icon{font-size:1.9rem;margin-bottom:7px}
+.upload-zone p{font-size:.81rem;color:var(--text2);font-weight:500}
+.upload-zone small{font-size:.7rem;color:var(--text3);display:block;margin-top:3px}
+input[type=file]{display:none}
 
-.format-guide{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:.75rem;color:#92400e;line-height:1.6}
-.format-guide strong{display:block;margin-bottom:5px;font-size:.78rem}
-.format-guide code{background:#fef3c7;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.71rem}
+/* Week selector (for xlsx multi-week) */
+.week-selector-wrap{background:#f0fff4;border:1px solid #b7e4c7;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:none}
+.week-selector-wrap label{font-size:.77rem;font-weight:700;color:var(--accent);display:block;margin-bottom:8px}
+.week-chips{display:flex;gap:6px;flex-wrap:wrap}
+.week-chip{padding:4px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text2)}
+.week-chip:hover{border-color:var(--accent2)}
+.week-chip.sel{background:var(--accent);border-color:var(--accent);color:white}
 
+/* Column mapper */
+.mapper-section{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:none}
+.mapper-section h4{font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:10px}
+.mapper-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.76rem}
+.mapper-row label{min-width:130px;color:var(--text);font-weight:500;font-size:.74rem}
+.mapper-row select{flex:1;border:1.5px solid var(--border);border-radius:7px;padding:5px 7px;font-family:'Sarabun',sans-serif;font-size:.73rem;background:white;color:var(--text);outline:none;cursor:pointer}
+.mapper-row select:focus{border-color:var(--accent2)}
+.col-status{font-size:.68rem;padding:2px 6px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+.cs-ok{background:#d1fae5;color:#065f46}.cs-miss{background:#fee2e2;color:#b91c1c}
+
+/* Preview */
 .preview-wrap{margin-bottom:12px;display:none}
-.preview-title{font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.preview-title .badge{background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-size:.7rem}
-.preview-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border);max-height:160px}
-.preview-scroll table{width:100%;border-collapse:collapse;font-size:.71rem}
-.preview-scroll th{background:#f1f5f9;padding:5px 8px;font-weight:700;color:var(--text2);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0}
-.preview-scroll td{padding:4px 8px;border-bottom:1px solid #f1f5f9;white-space:nowrap;color:var(--text)}
+.preview-title{font-size:.76rem;font-weight:700;color:var(--text2);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.preview-title .badge{background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-size:.69rem}
+.preview-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border);max-height:150px}
+.preview-scroll table{width:100%;border-collapse:collapse;font-size:.7rem}
+.preview-scroll th{background:#f1f5f9;padding:5px 7px;font-weight:700;color:var(--text2);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0}
+.preview-scroll td{padding:4px 7px;border-bottom:1px solid #f1f5f9;white-space:nowrap;color:var(--text)}
 .preview-scroll tr:last-child td{border-bottom:none}
 .preview-scroll tr:hover td{background:#f8fafc}
+.highlight-col{background:#f0fff4!important;font-weight:700}
 
-.mapper-wrap{margin-bottom:12px;display:none;background:var(--surface2);border-radius:10px;padding:12px 14px;border:1px solid var(--border)}
-.mapper-title{font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:9px}
-.mapper-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.77rem}
-.mapper-row label{min-width:115px;color:var(--text);font-weight:500}
-.mapper-row select{flex:1;border:1.5px solid var(--border);border-radius:7px;padding:5px 8px;font-family:'Sarabun',sans-serif;font-size:.75rem;background:white;color:var(--text);outline:none;cursor:pointer}
-.mapper-row select:focus{border-color:var(--accent2)}
-
-.dl-link{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;color:var(--accent);text-decoration:none;font-weight:600;margin-bottom:12px;background:#f0fff4;padding:5px 10px;border-radius:8px;border:1px solid #b7e4c7;transition:all .2s;cursor:pointer}
-.dl-link:hover{background:#d8f3dc}
+/* Status */
+.status-box{margin-bottom:10px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:12px;font-size:.73rem;font-weight:600}
+.sp-ok{background:#d1fae5;color:#065f46}.sp-err{background:#fee2e2;color:#b91c1c}.sp-warn{background:#fef3c7;color:#92400e}.sp-info{background:#dbeafe;color:#1e40af}
 
 /* Manual */
-.week-section{margin-bottom:15px}
-.week-label{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.82rem;margin-bottom:8px}
-.week-badge{background:var(--accent);color:white;font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.week-section{margin-bottom:14px}
+.week-label{display:flex;align-items:center;gap:7px;font-weight:600;font-size:.8rem;margin-bottom:7px}
+.week-badge{background:var(--accent);color:white;font-size:.66rem;padding:2px 7px;border-radius:9px;font-weight:600}
 .score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.score-item input{width:100%;text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:5px 3px;font-size:.8rem;font-family:'Sarabun',sans-serif;background:var(--surface2);color:var(--text);transition:border-color .2s;outline:none}
+.score-item input{width:100%;text-align:center;border:1.5px solid var(--border);border-radius:7px;padding:5px 2px;font-size:.79rem;font-family:'Sarabun',sans-serif;background:var(--surface2);color:var(--text);transition:border-color .2s;outline:none}
 .score-item input:focus{border-color:var(--accent2);background:white}
-.score-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px}
-.score-labels span{text-align:center;font-size:.66rem;font-weight:700;padding:2px 3px;border-radius:5px}
+.score-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:3px}
+.score-labels span{text-align:center;font-size:.64rem;font-weight:700;padding:2px 2px;border-radius:5px}
 .lbl1{background:#ffe0e6;color:#c9184a}.lbl2{background:#ffb3c1;color:#c9184a}
 .lbl3{background:#fff0a0;color:#b7791f}.lbl4{background:#d8f3dc;color:#2d6a4f}.lbl5{background:#95d5b2;color:#1b4332}
-.divider{border:none;border-top:1px dashed var(--border);margin:11px 0}
-.info-row{display:flex;gap:6px;align-items:flex-start;background:#f0fff4;border:1px solid #b7e4c7;border-radius:8px;padding:7px 11px;margin-bottom:12px;font-size:.76rem;color:var(--accent)}
+.divider{border:none;border-top:1px dashed var(--border);margin:10px 0}
+.info-row{background:#f0fff4;border:1px solid #b7e4c7;border-radius:8px;padding:7px 11px;margin-bottom:11px;font-size:.74rem;color:var(--accent)}
 
+/* Buttons */
 .btn-row{display:flex;gap:8px;margin-top:8px}
-.btn{flex:1;padding:10px;border-radius:9px;border:none;font-family:'Sarabun',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn{flex:1;padding:9px;border-radius:9px;border:none;font-family:'Sarabun',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-primary{background:var(--accent);color:white}
 .btn-primary:hover{background:#1b4332;transform:translateY(-1px)}
 .btn-secondary{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
 .btn-secondary:hover{border-color:var(--accent2);color:var(--accent)}
-.btn-csv{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white}
-.btn-csv:hover{opacity:.88;transform:translateY(-1px)}
-.btn-csv:disabled{opacity:.4;cursor:not-allowed;transform:none}
-
-.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:12px;font-size:.73rem;font-weight:600;margin-bottom:10px}
-.status-ok{background:#d1fae5;color:#065f46}
-.status-err{background:#fee2e2;color:#b91c1c}
-.status-warn{background:#fef3c7;color:#92400e}
+.btn-import{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white}
+.btn-import:hover{opacity:.88;transform:translateY(-1px)}
+.btn-import:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 /* Chart */
-.chart-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 26px}
-.chart-title{font-family:'Prompt',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:7px}
-.top2-badge{display:flex;justify-content:center;margin-bottom:14px}
-.top2-badge span{background:linear-gradient(135deg,var(--accent2),var(--accent));color:white;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700}
-.chart-legend{display:flex;justify-content:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--text2);font-weight:500}
-.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.chart-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 24px}
+.chart-title{font-family:'Prompt',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px}
+.top2-badge{display:flex;justify-content:center;margin-bottom:12px}
+.top2-badge span{background:linear-gradient(135deg,var(--accent2),var(--accent));color:white;padding:4px 13px;border-radius:20px;font-size:.74rem;font-weight:700}
+.chart-legend{display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.73rem;color:var(--text2);font-weight:500}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .chart-wrap{position:relative;height:340px}
-.top2-line{display:flex;justify-content:space-around;padding:12px 0 0;border-top:1px solid var(--border);margin-top:14px}
+.top2-line{display:flex;justify-content:space-around;padding:11px 0 0;border-top:1px solid var(--border);margin-top:12px}
 .top2-item{text-align:center}
-.top2-item .wk{font-size:.7rem;color:var(--text3);margin-bottom:2px}
-.top2-item .pct{font-family:'Prompt',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent)}
-.top2-item .pct.high{color:#2d6a4f}.top2-item .pct.low{color:#c9184a}
+.top2-item .wk{font-size:.69rem;color:var(--text3);margin-bottom:1px}
+.top2-item .pct{font-family:'Prompt',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)}
+.high{color:#2d6a4f!important}.low{color:#c9184a!important}
 .no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text3);gap:10px}
-.no-data span{font-size:2.5rem}.no-data p{font-size:.86rem}
+.no-data span{font-size:2.3rem}.no-data p{font-size:.84rem}
 
-.toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:white;padding:11px 18px;border-radius:11px;font-size:.82rem;font-weight:600;box-shadow:0 8px 24px rgba(45,106,79,.4);transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);z-index:999}
+/* Data summary bar */
+.data-summary{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.ds-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:5px}
+.ds-pill strong{color:var(--accent)}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--accent);color:white;padding:10px 17px;border-radius:10px;font-size:.8rem;font-weight:600;box-shadow:0 8px 24px rgba(45,106,79,.4);transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);z-index:999}
 .toast.show{transform:translateY(0);opacity:1}
 
-.sub-mode-switch{display:flex;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border)}
-.sub-mode-btn{flex:1;padding:6px 4px;background:var(--surface2);border:none;font-family:'Sarabun',sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
-.sub-mode-btn:not(:last-child){border-right:1.5px solid var(--border)}
-.sub-mode-btn.active{background:#0ea5e9;color:white}
+/* Loading spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -139,15 +152,15 @@ header p{font-size:.82rem;opacity:.8;margin-top:2px}
   <div class="icon">📊</div>
   <div>
     <h1>Survey Dashboard – Skin Care</h1>
-    <p>กรอกคะแนนดิบหรือ Upload CSV → คำนวณ %Top 2 Box อัตโนมัติ</p>
+    <p>Upload ไฟล์ .xlsx / .csv ข้อมูลดิบ → คำนวณ %Top 2 Box อัตโนมัติ</p>
   </div>
 </header>
 
 <div class="container">
   <div class="tabs" id="tabBar"></div>
-  <div class="layout">
 
-    <!-- LEFT: Input Panel -->
+  <div class="layout">
+    <!-- LEFT -->
     <div class="card">
       <div class="card-header">
         <div class="dot"></div>
@@ -155,13 +168,13 @@ header p{font-size:.82rem;opacity:.8;margin-top:2px}
       </div>
       <div class="card-body">
 
-        <!-- Main Mode Switch -->
         <div class="mode-switch">
           <button class="mode-btn active" id="modeManualBtn" onclick="switchMode('manual')">✏️ กรอกมือ</button>
-          <button class="mode-btn" id="modeCsvBtn" onclick="switchMode('csv')">📂 Import CSV</button>
+          <button class="mode-btn" id="modeXlsxBtn" onclick="switchMode('xlsx')">📗 Upload XLSX</button>
+          <button class="mode-btn" id="modeCsvBtn" onclick="switchMode('csv')">📄 Upload CSV</button>
         </div>
 
-        <!-- ── MANUAL PANEL ── -->
+        <!-- ── MANUAL ── -->
         <div id="manualPanel">
           <div class="info-row">💡 กรอกจำนวนผู้ตอบในแต่ละระดับคะแนน (1–5) สำหรับแต่ละสัปดาห์</div>
           <div id="inputArea"></div>
@@ -171,75 +184,103 @@ header p{font-size:.82rem;opacity:.8;margin-top:2px}
           </div>
         </div>
 
-        <!-- ── CSV PANEL ── -->
+        <!-- ── XLSX UPLOAD ── -->
+        <div id="xlsxPanel" style="display:none">
+
+          <div class="info-row">
+            💡 รองรับไฟล์ <strong>.xlsx</strong> จากระบบ survey โดยตรง — อ่าน sheet <code>Cleaned</code> อัตโนมัติ
+            และรองรับคอลัมน์ <code>Overall_Satisfaction</code>, <code>Moist_Score</code>, <code>Smooth_Score</code>, <code>Bright_Score</code>, <code>Darkspot_Score</code>, <code>Fineline_Score</code>
+          </div>
+
+          <div class="upload-zone" id="xlsxDropZone"
+            onclick="document.getElementById('xlsxFileInput').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleXlsxDrop(event)">
+            <div class="uz-icon">📗</div>
+            <p>คลิกเลือกไฟล์ หรือลากวางที่นี่</p>
+            <small>รองรับ .xlsx / .xlsm — อ่าน sheet "Cleaned" ก่อน ถ้าไม่มีใช้ sheet แรก</small>
+          </div>
+          <input type="file" id="xlsxFileInput" accept=".xlsx,.xlsm,.xls" onchange="handleXlsxFile(this.files[0])">
+
+          <!-- Week selector -->
+          <div class="week-selector-wrap" id="weekSelectorWrap">
+            <label>📅 ระบุว่าไฟล์นี้คือข้อมูลของ Week ใด?</label>
+            <div class="week-chips" id="weekChips"></div>
+          </div>
+
+          <!-- Column mapper -->
+          <div class="mapper-section" id="xlsxMapper">
+            <h4>🗂 จับคู่คอลัมน์ Score กับหมวดที่ต้องการ</h4>
+            <div id="mapperRows"></div>
+          </div>
+
+          <!-- Preview -->
+          <div class="preview-wrap" id="xlsxPreview">
+            <div class="preview-title">ตัวอย่างข้อมูล <span class="badge" id="xlsxPreviewBadge"></span></div>
+            <div class="preview-scroll"><table id="xlsxPreviewTable"></table></div>
+          </div>
+
+          <div class="status-box" id="xlsxStatus"></div>
+
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="clearXlsx()">ล้าง</button>
+            <button class="btn btn-import" id="btnXlsxImport" onclick="importXlsx()" disabled>📥 Import & แสดงกราฟ</button>
+          </div>
+        </div>
+
+        <!-- ── CSV UPLOAD ── -->
         <div id="csvPanel" style="display:none">
-
-          <!-- Sub-mode: raw vs agg -->
-          <div style="font-size:.77rem;font-weight:700;color:var(--text2);margin-bottom:7px">รูปแบบ CSV:</div>
-          <div class="sub-mode-switch">
-            <button class="sub-mode-btn active" id="fmtRawBtn" onclick="switchFmt('raw')">📋 รายคน (ข้อมูลดิบ)</button>
-            <button class="sub-mode-btn" id="fmtAggBtn" onclick="switchFmt('agg')">🔢 นับรวมแล้ว</button>
+          <div class="info-row">
+            💡 CSV รองรับ 2 แบบ:<br>
+            <strong>ดิบรายคน:</strong> คอลัมน์ <code>week, category, score</code><br>
+            <strong>นับรวมแล้ว:</strong> คอลัมน์ <code>week, category, score1…score5</code>
           </div>
 
-          <!-- Format guides -->
-          <div id="guideRaw" class="format-guide">
-            <strong>📋 ข้อมูลดิบรายคน — 1 แถว = 1 คนตอบ</strong>
-            ต้องมีคอลัมน์: <code>week</code>, <code>category</code>, <code>score</code><br>
-            • week: <code>0</code> ถึง <code>4</code><br>
-            • category: <code>overall</code> / <code>moisture</code> / <code>bright</code> / <code>smooth</code> / <code>wrinkle</code> / <code>dark</code><br>
-            • score: <code>1</code> ถึง <code>5</code>
-          </div>
-          <div id="guideAgg" class="format-guide" style="display:none">
-            <strong>🔢 นับรวมแล้ว — 1 แถว = 1 สัปดาห์ × 1 หมวด</strong>
-            ต้องมีคอลัมน์: <code>week</code>, <code>category</code>, <code>score1</code>, <code>score2</code>, <code>score3</code>, <code>score4</code>, <code>score5</code><br>
-            ตัวอย่าง: <code>0,overall,2,0,8,24,7</code>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-secondary" style="font-size:.72rem;padding:6px" onclick="downloadTemplate('raw')">⬇️ Template รายคน</button>
+            <button class="btn btn-secondary" style="font-size:.72rem;padding:6px" onclick="downloadTemplate('agg')">⬇️ Template นับรวม</button>
           </div>
 
-          <!-- Download template links -->
-          <a class="dl-link" id="dlRawLink" onclick="downloadTemplate('raw')">⬇️ Download ตัวอย่าง CSV (รายคน)</a>
-          <a class="dl-link" id="dlAggLink" onclick="downloadTemplate('agg')" style="display:none">⬇️ Download ตัวอย่าง CSV (นับรวม)</a>
-
-          <!-- Drop zone -->
-          <div class="upload-zone" id="uploadZone"
+          <div class="upload-zone" id="csvDropZone"
             onclick="document.getElementById('csvFileInput').click()"
             ondragover="event.preventDefault();this.classList.add('drag')"
             ondragleave="this.classList.remove('drag')"
-            ondrop="handleDrop(event)">
-            <div class="upload-icon">📂</div>
-            <p>คลิกเลือกไฟล์ หรือลากวางที่นี่</p>
-            <small>รองรับ .csv ทุก encoding (UTF-8 / TIS-620)</small>
+            ondrop="handleCsvDrop(event)">
+            <div class="uz-icon">📄</div>
+            <p>คลิกเลือกไฟล์ CSV หรือลากวางที่นี่</p>
+            <small>.csv / .txt — UTF-8 หรือ TIS-620</small>
           </div>
-          <input type="file" id="csvFileInput" accept=".csv,.txt" onchange="handleFile(this.files[0])">
+          <input type="file" id="csvFileInput" accept=".csv,.txt" onchange="handleCsvFile(this.files[0])">
 
-          <div id="csvStatus"></div>
-
-          <!-- Column mapper (raw only) -->
-          <div class="mapper-wrap" id="mapperWrap">
-            <div class="mapper-title">🗂 จับคู่คอลัมน์ (ปรับได้ถ้าชื่อไม่ตรง)</div>
-            <div class="mapper-row"><label>คอลัมน์ "Week"</label><select id="mapWeek"></select></div>
-            <div class="mapper-row"><label>คอลัมน์ "Category"</label><select id="mapCat"></select></div>
-            <div class="mapper-row"><label>คอลัมน์ "Score"</label><select id="mapScore"></select></div>
+          <div class="mapper-section" id="csvMapper" style="display:none">
+            <h4>🗂 จับคู่คอลัมน์</h4>
+            <div class="mapper-row"><label>คอลัมน์ "Week"</label><select id="csvMapWeek"></select></div>
+            <div class="mapper-row"><label>คอลัมน์ "Category"</label><select id="csvMapCat"></select></div>
+            <div class="mapper-row"><label>คอลัมน์ "Score"</label><select id="csvMapScore"></select></div>
           </div>
 
-          <!-- Preview table -->
-          <div class="preview-wrap" id="previewWrap">
-            <div class="preview-title">ตัวอย่างข้อมูล <span class="badge" id="previewBadge"></span></div>
-            <div class="preview-scroll"><table id="previewTable"></table></div>
+          <div class="preview-wrap" id="csvPreview">
+            <div class="preview-title">ตัวอย่างข้อมูล <span class="badge" id="csvPreviewBadge"></span></div>
+            <div class="preview-scroll"><table id="csvPreviewTable"></table></div>
           </div>
+
+          <div class="status-box" id="csvStatus"></div>
 
           <div class="btn-row">
             <button class="btn btn-secondary" onclick="clearCsv()">ล้าง</button>
-            <button class="btn btn-csv" id="btnImport" onclick="importCsv()" disabled>📥 Import & แสดงกราฟ</button>
+            <button class="btn btn-import" id="btnCsvImport" onclick="importCsv()" disabled>📥 Import & แสดงกราฟ</button>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- RIGHT: Chart Panel -->
+    <!-- RIGHT: Chart -->
     <div class="chart-card">
-      <div class="no-data" id="noData"><span>📈</span><p>กรอกข้อมูลและกด "แสดงกราฟ"</p></div>
+      <div class="no-data" id="noData"><span>📈</span><p>อัปโหลดข้อมูลหรือกรอกมือ แล้วกด Import</p></div>
       <div id="chartArea" style="display:none">
+        <div class="data-summary" id="dataSummary"></div>
         <div class="chart-title" id="chartTitle"></div>
         <div class="top2-badge"><span>%Top 2 Box (คะแนน 4+5)</span></div>
         <div class="chart-legend">
@@ -253,7 +294,6 @@ header p{font-size:.82rem;opacity:.8;margin-top:2px}
         <div class="top2-line" id="top2Line"></div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -262,62 +302,58 @@ header p{font-size:.82rem;opacity:.8;margin-top:2px}
 <script>
 // ── Constants ──────────────────────────────────────────────
 const CATEGORIES = [
-  {id:'overall', label:'คะแนนความพึงพอใจโดยรวม'},
-  {id:'moisture',label:'คะแนนความชุ่มชื้น'},
-  {id:'bright',  label:'คะแนนด้านความกระจ่างใส'},
-  {id:'smooth',  label:'คะแนนด้านเรียบเนียน'},
-  {id:'wrinkle', label:'ด้านริ้วรอย'},
-  {id:'dark',    label:'ด้านจุดด่างดำ/ฝ้า/กระ'},
+  {id:'overall',  label:'คะแนนความพึงพอใจโดยรวม',  xlsxCol:'Overall_Satisfaction'},
+  {id:'moisture', label:'คะแนนความชุ่มชื้น',         xlsxCol:'Moist_Score'},
+  {id:'smooth',   label:'คะแนนด้านความกระจ่างใส',   xlsxCol:'Bright_Score'},
+  {id:'bright',   label:'คะแนนด้านเรียบเนียน',       xlsxCol:'Smooth_Score'},
+  {id:'wrinkle',  label:'ด้านริ้วรอย',                xlsxCol:'Fineline_Score'},
+  {id:'dark',     label:'ด้านจุดด่างดำ/ฝ้า/กระ',    xlsxCol:'Darkspot_Score'},
 ];
-const CAT_IDS    = CATEGORIES.map(c=>c.id);
 const CAT_LABELS = CATEGORIES.map(c=>c.label);
-const WEEKS      = ['Week 0','Week 1','Week 2','Week 3','Week 4'];
+const WEEKS = ['Week 0','Week 1','Week 2','Week 3','Week 4'];
 
 // State
-let data        = emptyData();
-let currentCat  = 0;
-let myChart     = null;
-let csvFmt      = 'raw';
-let parsedRows  = null;
-let csvHeaders  = [];
+let data          = emptyData();   // [catIdx][weekIdx][score0..4]
+let currentCat    = 0;
+let myChart       = null;
 
-function emptyData(){
-  return Array.from({length:6},()=>Array.from({length:5},()=>[0,0,0,0,0]));
-}
+// XLSX state
+let xlsxHeaders   = [];
+let xlsxRows      = [];
+let selectedWeek  = 0;
+let colMapping    = {};  // catIdx -> colName
+
+// CSV state
+let csvHeaders    = [];
+let csvRows       = [];
+let csvFmt        = 'raw';
+
+function emptyData(){ return Array.from({length:6},()=>Array.from({length:5},()=>[0,0,0,0,0])); }
 
 // ── Tabs ──────────────────────────────────────────────────
 function buildTabs(){
-  const bar = document.getElementById('tabBar');
+  const bar=document.getElementById('tabBar');
   bar.innerHTML='';
   CATEGORIES.forEach((cat,i)=>{
     const b=document.createElement('button');
     b.className='tab-btn'+(i===currentCat?' active':'');
     b.textContent=(i+1)+'. '+cat.label;
-    b.onclick=()=>{ currentCat=i; buildTabs(); buildInputs(); };
+    b.onclick=()=>{ currentCat=i; buildTabs(); buildInputs(); renderChart(); };
     bar.appendChild(b);
   });
 }
 
-// ── Mode switches ──────────────────────────────────────────
+// ── Mode ───────────────────────────────────────────────────
 function switchMode(m){
-  document.getElementById('manualPanel').style.display=m==='manual'?'block':'none';
-  document.getElementById('csvPanel').style.display   =m==='csv'?'block':'none';
+  ['manual','xlsx','csv'].forEach(n=>{
+    document.getElementById(n+'Panel').style.display=m===n?'block':'none';
+  });
   document.getElementById('modeManualBtn').classList.toggle('active',m==='manual');
+  document.getElementById('modeXlsxBtn').classList.toggle('active',m==='xlsx');
   document.getElementById('modeCsvBtn').classList.toggle('active',m==='csv');
 }
 
-function switchFmt(f){
-  csvFmt=f;
-  document.getElementById('fmtRawBtn').classList.toggle('active',f==='raw');
-  document.getElementById('fmtAggBtn').classList.toggle('active',f==='agg');
-  document.getElementById('guideRaw').style.display=f==='raw'?'block':'none';
-  document.getElementById('guideAgg').style.display=f==='agg'?'block':'none';
-  document.getElementById('dlRawLink').style.display=f==='raw'?'inline-flex':'none';
-  document.getElementById('dlAggLink').style.display=f==='agg'?'inline-flex':'none';
-  clearCsv();
-}
-
-// ── Manual input ───────────────────────────────────────────
+// ── Manual ─────────────────────────────────────────────────
 function buildInputs(){
   document.getElementById('inputTitle').textContent='ข้อมูล: '+CAT_LABELS[currentCat];
   const area=document.getElementById('inputArea');
@@ -327,10 +363,7 @@ function buildInputs(){
     sec.className='week-section';
     sec.innerHTML=`
       <div class="week-label"><span class="week-badge">${wk}</span> จำนวนผู้ตอบแต่ละระดับ</div>
-      <div class="score-labels">
-        <span class="lbl1">1⭐</span><span class="lbl2">2⭐</span>
-        <span class="lbl3">3⭐</span><span class="lbl4">4⭐</span><span class="lbl5">5⭐</span>
-      </div>
+      <div class="score-labels"><span class="lbl1">1⭐</span><span class="lbl2">2⭐</span><span class="lbl3">3⭐</span><span class="lbl4">4⭐</span><span class="lbl5">5⭐</span></div>
       <div class="score-grid">
         ${[0,1,2,3,4].map(si=>`
           <div class="score-item">
@@ -342,245 +375,324 @@ function buildInputs(){
     area.appendChild(sec);
   });
 }
-
 function saveVal(wi,si,v){ data[currentCat][wi][si]=parseInt(v)||0; }
+function syncInputs(){
+  WEEKS.forEach((_,wi)=>[0,1,2,3,4].forEach(si=>{
+    const el=document.getElementById(`inp_${wi}_${si}`);
+    if(el) data[currentCat][wi][si]=parseInt(el.value)||0;
+  }));
+}
+function resetCurrent(){ data[currentCat]=Array.from({length:5},()=>[0,0,0,0,0]); buildInputs(); }
 
-function syncInputsToData(){
-  WEEKS.forEach((_,wi)=>{
-    [0,1,2,3,4].forEach(si=>{
-      const el=document.getElementById(`inp_${wi}_${si}`);
-      if(el) data[currentCat][wi][si]=parseInt(el.value)||0;
-    });
+// ── XLSX Upload ────────────────────────────────────────────
+function handleXlsxDrop(e){
+  e.preventDefault();
+  document.getElementById('xlsxDropZone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f) handleXlsxFile(f);
+}
+
+function handleXlsxFile(file){
+  if(!file) return;
+  setXlsxStatus('<span class="spinner"></span> กำลังอ่านไฟล์...','info');
+  document.getElementById('btnXlsxImport').disabled=true;
+
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result, {type:'array', cellFormula:false, cellNF:false});
+
+      // Prefer 'Cleaned' sheet
+      let sheetName = wb.SheetNames.includes('Cleaned') ? 'Cleaned' : wb.SheetNames[0];
+      const ws=wb.Sheets[sheetName];
+      const raw=XLSX.utils.sheet_to_json(ws,{defval:null, raw:false});
+
+      if(!raw.length) throw new Error('ไม่พบข้อมูลใน sheet: '+sheetName);
+
+      xlsxHeaders=Object.keys(raw[0]);
+      xlsxRows=raw;
+
+      setXlsxStatus(`✅ อ่านสำเร็จ: <strong>${file.name}</strong> (sheet: ${sheetName}, ${raw.length} แถว)`,'ok');
+      showXlsxPreview(raw.slice(0,6), raw.length);
+      buildWeekSelector();
+      buildColMapper();
+      document.getElementById('btnXlsxImport').disabled=false;
+    } catch(err){
+      setXlsxStatus('❌ '+err.message,'err');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function buildWeekSelector(){
+  const wrap=document.getElementById('weekSelectorWrap');
+  wrap.style.display='block';
+  const chips=document.getElementById('weekChips');
+  chips.innerHTML='';
+  WEEKS.forEach((wk,i)=>{
+    const d=document.createElement('div');
+    d.className='week-chip'+(i===selectedWeek?' sel':'');
+    d.textContent=wk;
+    d.onclick=()=>{ selectedWeek=i; buildWeekSelector(); };
+    chips.appendChild(d);
   });
 }
 
-function resetCurrent(){
-  data[currentCat]=Array.from({length:5},()=>[0,0,0,0,0]);
+function buildColMapper(){
+  const ms=document.getElementById('xlsxMapper');
+  ms.style.display='block';
+  const rows=document.getElementById('mapperRows');
+  rows.innerHTML='';
+
+  CATEGORIES.forEach((cat,ci)=>{
+    // Auto-detect: exact match on xlsxCol name, or partial keyword
+    const detected=detectCol(xlsxHeaders, cat.xlsxCol);
+    colMapping[ci]=detected||'';
+
+    const div=document.createElement('div');
+    div.className='mapper-row';
+
+    const opts=xlsxHeaders.map(h=>`<option value="${h}" ${h===colMapping[ci]?'selected':''}>${h}</option>`).join('');
+    const statusCls=detected?'cs-ok':'cs-miss';
+    const statusTxt=detected?'✓ จับคู่แล้ว':'⚠ เลือกเอง';
+
+    div.innerHTML=`
+      <label title="${cat.xlsxCol}">${cat.label}</label>
+      <select id="colmap_${ci}" onchange="colMapping[${ci}]=this.value">
+        <option value="">— ไม่ใช้ —</option>${opts}
+      </select>
+      <span class="col-status ${statusCls}">${statusTxt}</span>`;
+    rows.appendChild(div);
+  });
+}
+
+function detectCol(headers, targetName){
+  // 1. exact
+  const ex=headers.find(h=>h===targetName);
+  if(ex) return ex;
+  // 2. case-insensitive
+  const ci=headers.find(h=>h.toLowerCase()===targetName.toLowerCase());
+  if(ci) return ci;
+  // 3. partial
+  return headers.find(h=>h.toLowerCase().includes(targetName.toLowerCase())) || null;
+}
+
+function showXlsxPreview(rows,total){
+  const pw=document.getElementById('xlsxPreview');
+  pw.style.display='block';
+  document.getElementById('xlsxPreviewBadge').textContent=total+' แถวทั้งหมด';
+  const headers=Object.keys(rows[0]||{});
+  // Highlight score columns
+  const scoreCols=CATEGORIES.map(c=>c.xlsxCol);
+  const t=document.getElementById('xlsxPreviewTable');
+  t.innerHTML=
+    `<tr>${headers.map(h=>`<th class="${scoreCols.includes(h)?'highlight-col':''}">${h}</th>`).join('')}</tr>`+
+    rows.map(r=>`<tr>${headers.map(h=>`<td class="${scoreCols.includes(h)?'highlight-col':''}">${r[h]??''}</td>`).join('')}</tr>`).join('');
+}
+
+function setXlsxStatus(msg,type){
+  const el=document.getElementById('xlsxStatus');
+  el.innerHTML=`<div class="status-pill sp-${type}">${msg}</div>`;
+}
+
+function clearXlsx(){
+  xlsxHeaders=[]; xlsxRows=[]; colMapping={};
+  document.getElementById('xlsxStatus').innerHTML='';
+  document.getElementById('xlsxPreview').style.display='none';
+  document.getElementById('xlsxMapper').style.display='none';
+  document.getElementById('weekSelectorWrap').style.display='none';
+  document.getElementById('xlsxFileInput').value='';
+  document.getElementById('btnXlsxImport').disabled=true;
+}
+
+function importXlsx(){
+  if(!xlsxRows.length) return;
+
+  let imported=0, skipped=0;
+
+  CATEGORIES.forEach((cat,ci)=>{
+    const colName=document.getElementById('colmap_'+ci)?.value;
+    if(!colName) return;
+
+    xlsxRows.forEach(row=>{
+      const raw=row[colName];
+      if(raw===null||raw===undefined||raw==='') { skipped++; return; }
+      // Extract leading digit: handles "4 - ค่อนข้าง..." or "=LEFT(...)" results or plain "4"
+      const match=String(raw).trim().match(/^([1-5])/);
+      if(!match){ skipped++; return; }
+      const score=parseInt(match[1]);
+      data[ci][selectedWeek][score-1]++;
+      imported++;
+    });
+  });
+
+  if(imported===0){
+    setXlsxStatus('❌ ไม่พบข้อมูลที่แปลงได้ — ตรวจสอบการจับคู่คอลัมน์','err');
+    return;
+  }
+
+  const week=WEEKS[selectedWeek];
+  setXlsxStatus(`✅ Import สำเร็จ ${imported} รายการ เข้า ${week}${skipped?' (ข้าม '+skipped+')':''}`, 'ok');
   buildInputs();
+  renderChart();
+  showToast(`📥 Import เข้า ${week} สำเร็จ — ${imported} รายการ`);
 }
 
 // ── CSV Upload ─────────────────────────────────────────────
-function handleDrop(e){
+function handleCsvDrop(e){
   e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag');
+  document.getElementById('csvDropZone').classList.remove('drag');
   const f=e.dataTransfer.files[0];
-  if(f) handleFile(f);
+  if(f) handleCsvFile(f);
 }
 
-function handleFile(file){
+function handleCsvFile(file){
   if(!file) return;
   const reader=new FileReader();
-  reader.onload=e=>processCSVText(e.target.result,file.name);
-  // try UTF-8 first; TIS-620 fallback handled by letting browser decode
+  reader.onload=e=>processCsvText(e.target.result, file.name);
   reader.readAsText(file,'UTF-8');
 }
 
-function parseCSV(text){
-  // Handle \r\n and \r
-  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
-  if(lines.length<2) throw new Error('ไฟล์มีข้อมูลน้อยเกินไป');
-  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
-  const rows=lines.slice(1).map(l=>{
-    const vals=l.split(',').map(v=>v.trim().replace(/^"|"$/g,''));
-    const obj={};
-    headers.forEach((h,i)=>{ obj[h]=vals[i]||''; });
-    return obj;
-  }).filter(r=>headers.some(h=>r[h]));
-  return {headers,rows};
-}
-
-function processCSVText(text,filename){
+function processCsvText(text,filename){
   try{
-    const {headers,rows}=parseCSV(text);
-    if(!rows.length) throw new Error('ไม่พบข้อมูลในไฟล์');
-    csvHeaders=headers;
-    parsedRows=rows;
-    setStatus(`✅ โหลดสำเร็จ: ${filename} — ${rows.length} แถว`,'ok');
-    showPreview(headers,rows.slice(0,6),rows.length);
-    if(csvFmt==='raw') setupMapper(headers);
-    else document.getElementById('mapperWrap').style.display='none';
-    document.getElementById('btnImport').disabled=false;
+    const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
+    if(lines.length<2) throw new Error('ไฟล์มีข้อมูลน้อยเกินไป');
+    csvHeaders=lines[0].split(',').map(h=>h.trim().replace(/"/g,'').toLowerCase());
+    csvRows=lines.slice(1).map(l=>{
+      const vals=l.split(',').map(v=>v.trim().replace(/"/g,''));
+      const obj={};
+      csvHeaders.forEach((h,i)=>{ obj[h]=vals[i]||''; });
+      return obj;
+    }).filter(r=>csvHeaders.some(h=>r[h]));
+
+    // Detect format
+    const hasScore1=csvHeaders.some(h=>h==='score1'||h==='s1');
+    csvFmt=hasScore1?'agg':'raw';
+
+    setCsvStatus(`✅ ${filename} — ${csvRows.length} แถว (${csvFmt==='raw'?'ดิบรายคน':'นับรวมแล้ว'})`,'ok');
+    showCsvPreview(csvRows.slice(0,5),csvRows.length);
+
+    if(csvFmt==='raw') setupCsvMapper(csvHeaders);
+    else document.getElementById('csvMapper').style.display='none';
+    document.getElementById('btnCsvImport').disabled=false;
   } catch(err){
-    setStatus('❌ '+err.message,'err');
-    document.getElementById('btnImport').disabled=true;
+    setCsvStatus('❌ '+err.message,'err');
   }
 }
 
-function setStatus(msg,type){
-  const el=document.getElementById('csvStatus');
-  el.innerHTML=`<div class="status-pill status-${type}">${msg}</div>`;
-}
-
-function showPreview(headers,rows,total){
-  const pw=document.getElementById('previewWrap');
+function showCsvPreview(rows,total){
+  const pw=document.getElementById('csvPreview');
   pw.style.display='block';
-  document.getElementById('previewBadge').textContent=total+' แถวทั้งหมด';
-  const t=document.getElementById('previewTable');
+  document.getElementById('csvPreviewBadge').textContent=total+' แถว';
+  const t=document.getElementById('csvPreviewTable');
   t.innerHTML=
-    `<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`+
-    rows.map(r=>`<tr>${headers.map(h=>`<td>${r[h]??''}</td>`).join('')}</tr>`).join('');
+    `<tr>${csvHeaders.map(h=>`<th>${h}</th>`).join('')}</tr>`+
+    rows.map(r=>`<tr>${csvHeaders.map(h=>`<td>${r[h]??''}</td>`).join('')}</tr>`).join('');
 }
 
-function setupMapper(headers){
-  const mw=document.getElementById('mapperWrap');
-  mw.style.display='block';
-  const guesses=[
-    ['week','wk','สัปดาห์','weeks'],
-    ['category','cat','หมวด','ประเภท','group'],
-    ['score','คะแนน','rating','value','ans','answer','response'],
-  ];
-  ['mapWeek','mapCat','mapScore'].forEach((id,i)=>{
+function setCsvStatus(msg,type){
+  document.getElementById('csvStatus').innerHTML=`<div class="status-pill sp-${type}">${msg}</div>`;
+}
+
+function setupCsvMapper(headers){
+  const ms=document.getElementById('csvMapper');
+  ms.style.display='block';
+  ['csvMapWeek','csvMapCat','csvMapScore'].forEach((id,i)=>{
     const sel=document.getElementById(id);
     sel.innerHTML=headers.map(h=>`<option value="${h}">${h}</option>`).join('');
-    const match=headers.find(h=>guesses[i].some(g=>h.includes(g)));
-    if(match) sel.value=match;
+    const guesses=[['week','wk','สัปดาห์'],['category','cat','หมวด'],['score','คะแนน','rating','value','ans']];
+    const m=headers.find(h=>guesses[i].some(g=>h.includes(g)));
+    if(m) sel.value=m;
   });
 }
 
 function clearCsv(){
-  parsedRows=null; csvHeaders=[];
+  csvHeaders=[]; csvRows=[];
   document.getElementById('csvStatus').innerHTML='';
-  document.getElementById('previewWrap').style.display='none';
-  document.getElementById('mapperWrap').style.display='none';
+  document.getElementById('csvPreview').style.display='none';
+  document.getElementById('csvMapper').style.display='none';
   document.getElementById('csvFileInput').value='';
-  document.getElementById('btnImport').disabled=true;
+  document.getElementById('btnCsvImport').disabled=true;
 }
 
-// ── Normalize category value → index ──────────────────────
 function normCatId(val){
   if(!val) return -1;
-  const v=val.toLowerCase().trim();
-  // exact id match
-  const ei=CAT_IDS.indexOf(v);
-  if(ei>=0) return ei;
-  // full label match
-  const li=CAT_LABELS.findIndex(l=>l===val.trim());
-  if(li>=0) return li;
-  // keyword map
+  const v=String(val).toLowerCase().trim();
+  const exact=CATEGORIES.findIndex(c=>c.id===v||c.label===val.trim());
+  if(exact>=0) return exact;
   const kw=[
-    ['overall','พึงพอใจ','โดยรวม','overall'],
-    ['moisture','ชุ่มชื้น','moisture','moist'],
-    ['bright','กระจ่าง','ใส','bright','clear'],
-    ['smooth','เรียบ','เนียน','smooth'],
-    ['wrinkle','ริ้ว','รอย','wrinkle'],
-    ['dark','จุด','ด่าง','ดำ','ฝ้า','กระ','dark','spot'],
+    ['overall','พึงพอใจ','โดยรวม'],['moisture','ชุ่มชื้น','moist'],
+    ['bright','กระจ่าง','bright'],['smooth','เรียบ','เนียน','smooth'],
+    ['wrinkle','ริ้ว','รอย','wrinkle'],['dark','จุด','ด่าง','ดำ','ฝ้า','กระ','dark','spot'],
   ];
-  for(let i=0;i<kw.length;i++){
-    if(kw[i].some(k=>v.includes(k))) return i;
-  }
+  for(let i=0;i<kw.length;i++) if(kw[i].some(k=>v.includes(k))) return i;
   return -1;
 }
 
-// ── Import CSV → data ──────────────────────────────────────
 function importCsv(){
-  if(!parsedRows) return;
-  try{
-    if(csvFmt==='raw') importRaw();
-    else importAgg();
-  } catch(err){
-    setStatus('❌ Import ล้มเหลว: '+err.message,'err');
-  }
-}
-
-function importRaw(){
-  const colW=document.getElementById('mapWeek').value;
-  const colC=document.getElementById('mapCat').value;
-  const colS=document.getElementById('mapScore').value;
-
+  if(!csvRows.length) return;
+  let ok=0,skip=0;
   data=emptyData();
-  let ok=0, skip=0, unknownCats=new Set();
 
-  parsedRows.forEach(row=>{
-    const wk =parseInt(row[colW]);
-    const sc =parseInt(row[colS]);
-    const cat=normCatId(row[colC]);
-    if(isNaN(wk)||wk<0||wk>4){ skip++; return; }
-    if(isNaN(sc)||sc<1||sc>5){ skip++; return; }
-    if(cat<0){ unknownCats.add(row[colC]); skip++; return; }
-    data[cat][wk][sc-1]++;
-    ok++;
-  });
-
-  if(ok===0) throw new Error('ไม่พบแถวที่แปลงได้ – ตรวจสอบการจับคู่คอลัมน์');
-  let msg=`✅ Import สำเร็จ ${ok} แถว`;
-  if(skip) msg+=` (ข้าม ${skip} แถว)`;
-  if(unknownCats.size) msg+=` — ไม่รู้จัก category: ${[...unknownCats].slice(0,3).join(', ')}`;
-  setStatus(msg, unknownCats.size?'warn':'ok');
-  buildInputs();
-  renderChart();
-  showToast('📥 Import สำเร็จ '+ok+' แถว');
-}
-
-function importAgg(){
-  const wCol=csvHeaders.find(h=>['week','wk','สัปดาห์'].some(k=>h.includes(k)))||csvHeaders[0];
-  const cCol=csvHeaders.find(h=>['category','cat','หมวด','ประเภท'].some(k=>h.includes(k)))||csvHeaders[1];
-
-  data=emptyData();
-  let ok=0, skip=0;
-
-  parsedRows.forEach(row=>{
-    const wk =parseInt(row[wCol]);
-    const cat=normCatId(row[cCol]);
-    if(isNaN(wk)||wk<0||wk>4){ skip++; return; }
-    if(cat<0){ skip++; return; }
-    [1,2,3,4,5].forEach(s=>{
-      const colCandidates=[`score${s}`,`s${s}`,`q${s}`,`คะแนน${s}`,`ระดับ${s}`];
-      const col=csvHeaders.find(h=>colCandidates.some(c=>h===c||h.replace(/\s/g,'')===c));
-      data[cat][wk][s-1]+= col?parseInt(row[col])||0:0;
+  if(csvFmt==='raw'){
+    const cW=document.getElementById('csvMapWeek').value;
+    const cC=document.getElementById('csvMapCat').value;
+    const cS=document.getElementById('csvMapScore').value;
+    csvRows.forEach(row=>{
+      const wk=parseInt(row[cW]); const sc=parseInt(row[cS]); const cat=normCatId(row[cC]);
+      if(isNaN(wk)||wk<0||wk>4||isNaN(sc)||sc<1||sc>5||cat<0){ skip++; return; }
+      data[cat][wk][sc-1]++; ok++;
     });
-    ok++;
-  });
+  } else {
+    const wCol=csvHeaders.find(h=>['week','wk'].some(k=>h.includes(k)))||csvHeaders[0];
+    const cCol=csvHeaders.find(h=>['category','cat','หมวด'].some(k=>h.includes(k)))||csvHeaders[1];
+    csvRows.forEach(row=>{
+      const wk=parseInt(row[wCol]); const cat=normCatId(row[cCol]);
+      if(isNaN(wk)||wk<0||wk>4||cat<0){ skip++; return; }
+      [1,2,3,4,5].forEach(s=>{
+        const col=csvHeaders.find(h=>[`score${s}`,`s${s}`,`q${s}`,`คะแนน${s}`].some(c=>h===c));
+        data[cat][wk][s-1]+=col?parseInt(row[col])||0:0;
+      });
+      ok++;
+    });
+  }
 
-  if(ok===0) throw new Error('ไม่พบแถวที่แปลงได้ – ตรวจสอบชื่อคอลัมน์');
-  setStatus(`✅ Import สำเร็จ ${ok} แถว${skip?' (ข้าม '+skip+')':''}`, 'ok');
-  buildInputs();
-  renderChart();
-  showToast('📥 Import สำเร็จ '+ok+' แถว');
+  if(ok===0){ setCsvStatus('❌ ไม่พบแถวที่แปลงได้','err'); return; }
+  setCsvStatus(`✅ Import ${ok} รายการ${skip?' (ข้าม '+skip+')':''}`, 'ok');
+  buildInputs(); renderChart();
+  showToast('📥 Import CSV สำเร็จ '+ok+' รายการ');
 }
 
 // ── Download templates ─────────────────────────────────────
 function downloadTemplate(fmt){
   let csv='';
-  const rand=(base,swing)=>Math.max(1,Math.min(5,base+Math.floor(Math.random()*swing)-(swing>>1)));
-
   if(fmt==='raw'){
     csv='week,category,score\n';
-    const bases=[[4,4,3,4,3,3],[4,3,4,3,4,3],[3,4,4,4,3,4],[5,4,4,4,4,4],[5,5,4,5,4,5]];
-    WEEKS.forEach((_,wi)=>{
-      CATEGORIES.forEach((cat,ci)=>{
-        const n=15+Math.floor(Math.random()*10);
-        for(let r=0;r<n;r++) csv+=`${wi},${cat.id},${rand(bases[wi][ci],3)}\n`;
-      });
-    });
+    WEEKS.forEach((_,wi)=>CATEGORIES.forEach(cat=>{
+      for(let r=0;r<15;r++) csv+=`${wi},${cat.id},${Math.max(1,Math.min(5,3+Math.floor(Math.random()*3)))}\n`;
+    }));
   } else {
     csv='week,category,score1,score2,score3,score4,score5\n';
-    const tpl=[[2,1,8,20,9],[0,2,10,5,2],[0,0,14,16,5],[0,0,4,22,9],[0,0,0,18,12]];
-    WEEKS.forEach((_,wi)=>{
-      CATEGORIES.forEach(cat=>{
-        csv+=`${wi},${cat.id},${tpl[wi].join(',')}\n`;
-      });
-    });
+    WEEKS.forEach((_,wi)=>CATEGORIES.forEach(cat=>{
+      csv+=`${wi},${cat.id},${[2,1,8,20,9].map(v=>v+wi).join(',')}\n`;
+    }));
   }
-
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=fmt==='raw'?'template_raw.csv':'template_aggregated.csv';
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=fmt==='raw'?'template_raw.csv':'template_agg.csv';
   a.click();
 }
 
 // ── Render Chart ───────────────────────────────────────────
-function calcPercents(catIdx){
+function calcPercents(ci){
   return WEEKS.map((_,wi)=>{
-    const counts=data[catIdx][wi];
-    const total=counts.reduce((a,b)=>a+b,0);
-    if(!total) return [0,0,0,0,0];
-    return counts.map(c=>parseFloat(((c/total)*100).toFixed(1)));
+    const c=data[ci][wi], t=c.reduce((a,b)=>a+b,0);
+    return t?c.map(v=>parseFloat(((v/t)*100).toFixed(1))):[0,0,0,0,0];
   });
 }
 
 function renderChart(){
-  syncInputsToData();
+  syncInputs();
   const wp=calcPercents(currentCat);
   const hasData=wp.some(w=>w.some(v=>v>0));
   document.getElementById('noData').style.display   =hasData?'none':'flex';
@@ -589,14 +701,18 @@ function renderChart(){
 
   document.getElementById('chartTitle').textContent='%Top 2 Box '+CAT_LABELS[currentCat];
 
+  // Data summary pills
+  const summary=document.getElementById('dataSummary');
+  summary.innerHTML=WEEKS.map((wk,wi)=>{
+    const total=data[currentCat][wi].reduce((a,b)=>a+b,0);
+    return total?`<div class="ds-pill">📋 ${wk} <strong>${total}</strong> คน</div>`:'';
+  }).join('');
+
   const colors=['#ff8fa3','#ffb3c1','#ffd166','#52b788','#2d6a4f'];
   const datasets=[0,1,2,3,4].map(si=>({
-    label:String(si+1),
-    data:wp.map(w=>w[si]),
-    backgroundColor:colors[si],
-    borderWidth:0,
-    borderRadius:si===4?6:0,
-    borderSkipped:false,
+    label:String(si+1), data:wp.map(w=>w[si]),
+    backgroundColor:colors[si], borderWidth:0,
+    borderRadius:si===4?6:0, borderSkipped:false,
   }));
 
   if(myChart) myChart.destroy();
@@ -605,10 +721,10 @@ function renderChart(){
     type:'bar',
     data:{labels:WEEKS,datasets},
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:true, maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label:c=>` คะแนน ${c.dataset.label}: ${c.raw}%`}},
+        tooltip:{callbacks:{label:c=>` คะแนน ${c.dataset.label}: ${c.raw}% (n=${data[currentCat][WEEKS.indexOf(c.label)]?.[parseInt(c.dataset.label)-1]||0})`}},
       },
       scales:{
         x:{stacked:true,grid:{display:false},ticks:{font:{family:'Sarabun',size:12},color:'#4a5568'}},
@@ -628,7 +744,7 @@ function renderChart(){
             ctx.save();
             ctx.fillStyle=di>=3?'white':'#1a202c';
             ctx.font='600 11px Sarabun,sans-serif';
-            ctx.textAlign='center';ctx.textBaseline='middle';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
             ctx.fillText(val+'%',bar.x,bar.y+bar.height/2);
             ctx.restore();
           });
@@ -637,18 +753,21 @@ function renderChart(){
     }]
   });
 
-  // Top2 row
   document.getElementById('top2Line').innerHTML=wp.map((w,i)=>{
     const t2=parseFloat((w[3]+w[4]).toFixed(1));
+    const total=data[currentCat][i].reduce((a,b)=>a+b,0);
     const cls=t2>=80?'high':t2<=40?'low':'';
-    return `<div class="top2-item"><div class="wk">${WEEKS[i]}</div><div class="pct ${cls}">${t2}%</div></div>`;
+    return `<div class="top2-item">
+      <div class="wk">${WEEKS[i]}${total?` (n=${total})`:''}</div>
+      <div class="pct ${cls}">${t2}%</div>
+    </div>`;
   }).join('');
 }
 
-function showToast(msg='✅ อัปเดตกราฟแล้ว'){
+function showToast(msg='✅ อัปเดตแล้ว'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2600);
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
 // ── Init ───────────────────────────────────────────────────
